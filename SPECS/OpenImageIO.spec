@@ -144,7 +144,6 @@ cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 %{python_sitearch}/OpenImageIO.so
 
 %files doc
-%doc CHANGES LICENSE
 %{_datadir}/doc/openimageio/*
 
 %files utils
@@ -158,7 +157,6 @@ cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/iv.1.gz
 
 %files devel
-%doc src/doc/*.pdf
 %{_libdir}/libOpenImageIO.so
 %{_includedir}/*
 

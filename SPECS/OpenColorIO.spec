@@ -4,6 +4,8 @@
 %filter_setup
 }
 
+%define release_prefix 1
+
 # Use cmake28 package on EL builds.
 #%if 0%{?el6}
 #%global cmake %cmake28 -DCMAKE_SKIP_RPATH=OFF
@@ -11,23 +13,17 @@
 
 Name:           OpenColorIO
 Version:        1.0.8
-#Release:        1%{?dist}
-Prefix:		/usr
-Release:        2
+Release:        %{?release_prefix}.2%{?dist}
 Summary:        Enables color transforms and image display across graphics apps
 
+Group:		Development/Libraries
 License:        BSD
 URL:            http://opencolorio.org/
 # Github archive was generated on the fly using the following URL:
 # https://github.com/imageworks/OpenColorIO/tarball/v1.0.8
 Source0:        %{name}-%{version}.tar.gz
 
-# Utilities
-#%if 0%{?el6}
-#BuildRequires:  cmake28
-#%else
 BuildRequires:  cmake
-#%endif
 BuildRequires:  help2man
 
 # Libraries
