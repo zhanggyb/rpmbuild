@@ -77,10 +77,15 @@ export CXXFLAGS="%{optflags}"
 __libsuffix=$(echo %_lib | cut -b4-)
 mkdir build
 cd build
+
+# see http://www.cmake.org/Wiki/CMake_RPATH_handling to fix rpath
 cmake \
     -DCMAKE_INSTALL_PREFIX=%{_prefix} \
     -DLIB_SUFFIX="$__libsuffix" \
     -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_SKIP_BUILD_RPATH:BOOL=FALSE \
+    -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=FALSE \
+    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE \
     -DINSTALL_DOCS=OFF \
     ..
 make %{?_smp_mflags} VERBOSE=1
