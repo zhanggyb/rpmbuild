@@ -3,7 +3,7 @@
 
 Name:           OpenImageIO
 Version:        1.1.7
-Release:        %{?release_prefix}.2%{?dist}
+Release:        %{?release_prefix}.3%{?dist}
 Summary:        Library for reading and writing images
 
 Group:          Development/Libraries
@@ -30,10 +30,11 @@ BuildRequires:  zlib-devel
 BuildRequires:  libjasper-devel
 #BuildRequires:  pugixml-devel
 %ifarch x86_64
-#BuildRequires:  tbb-devel
+BuildRequires:  tbb-devel
 %endif
 BuildRequires:  hdf5-devel
-#BuildRequires:	Field3D-devel
+BuildRequires: opencv-devel
+BuildRequires:	Field3D-devel
 BuildRequires:  OpenColorIO-devel
 
 # We don't want to provide private python extension libs
@@ -110,13 +111,13 @@ cmake	-D CMAKE_BUILD_TYPE=Release \
 	-D CMAKE_CXX_FLAGS="-fPIC" \
 %ifarch x86_64
 	-D USE_TBB:BOOL=TRUE \
-	-D USE_EXTERNAL_TBB=FALSE \
+	-D USE_EXTERNAL_TBB=TRUE \
 	-D LIB_INSTALL_DIR=%{_prefix}/lib64 \
 %else
-       -DUSE_TBB:BOOL=FALSE \
+	-D USE_TBB:BOOL=FALSE \
 %endif
 %ifarch ppc %{power64}
-       -DNOTHREADS:BOOL=TRUE \
+	-D NOTHREADS:BOOL=TRUE \
 %endif
        ../../src
 
@@ -162,6 +163,10 @@ cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Wed Mar 20 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7-1.3
+- Use external tbb-devel
+- Add opencv and Field3D
+
 * Tue Mar 19 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7
 - Update the 1.1.7
 - build for openSuSE 12.3
