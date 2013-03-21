@@ -41,7 +41,8 @@ Source5:        blenderplayer.1
 Source6:        blender.xpm
 Source7:        x-blend.desktop
 Source8:        blender-getversion.py
-Patch0:         blender-%{version}-fix-locale-files-path.patch
+#Patch0:         blender-%{version}-fix-locale-files-path.patch
+Patch0:         blender-%{version}-fix-shared-library.patch
 Patch1:         blender-2.58-python_include.patch
 Patch2:         blender-2.64a-big-endian.patch
 BuildRequires:  gettext-tools
@@ -150,8 +151,9 @@ This package includes API documentation and example plugin programs.
 %lang_package
 
 %prep
+
 %setup -q
-#%patch0 -p1
+%patch0 -p1
 #%patch1 -p1
 #%patch2 -p1
 
@@ -175,21 +177,25 @@ rm -rf release/scripts/presets/ffmpeg
 
 %build
 mkdir -p Build && pushd Build
-cmake ../ -DBUILD_SHARED_LIBS:BOOL=off \
-      -DWITH_FFTW3:BOOL=on \
-      -DWITH_JACK:BOOL=on \
-      -DWITH_CODEC_SNDFILE:BOOL=on \
+cmake ../ -DBUILD_SHARED_LIBS:BOOL=ON \
+      -DWITH_FFTW3:BOOL=ON \
+      -DWITH_JACK:BOOL=ON \
+      -DWITH_CODEC_SNDFILE:BOOL=ON \
       -DWITH_CODEC_FFMPEG:BOOL=ON \
-      -DWITH_IMAGE_OPENJPEG:BOOL=off \
-      -DWITH_OPENCOLLADA:BOOL=on \
-      -DWITH_PYTHON:BOOL=on \
-      -DWITH_PYTHON_INSTALL:BOOL=off \
+      -DWITH_IMAGE_OPENJPEG:BOOL=ON \
+      -DWITH_OPENCOLLADA:BOOL=ON \
+      -DWITH_PYTHON:BOOL=ON \
+      -DWITH_PYTHON_INSTALL:BOOL=ON \
       -DWITH_GAMEENGINE:BOOL=ON \
+      -DWITH_OPENCOLORIO:BOOL=ON \
+      -DOPENCOLORIO_INCLUDE_DIR:PATH=/usr/include/OpenColorIO \
       -DWITH_CYCLES:BOOL=ON \
-      -DWITH_PLAYER:BOOL=on \
+      -DWITH_OPENIMAGEIO:BOOL=ON \
+      -DOPENIMAGEIO_ROOT_DIR:PATH=/usr \
+      -DWITH_PLAYER:BOOL=OFF \
       -DWITH_INSTALL_PORTABLE:BOOL=OFF \
-      -DWITH_BUILTIN_GLEW:BOOL=OFF \
       -DWITH_MOD_OCEANSIM:BOOL=ON \
+      -DWITH_LLVM:BOOL=ON \
 %if 0%{?suse_version} > 1220 || 0%{?sles_version}
       -DPYTHON_VERSION=3.3 \
       -DPYTHON_LIBPATH=/usr/lib \
@@ -250,14 +256,17 @@ fi
 mkdir -p %{buildroot}%{_docdir}/%{name}
 cp -v    %{buildroot}%{_datadir}/doc/blender/* %{buildroot}%{_docdir}/%{name}/
 rm -rf %{buildroot}%{_datadir}/doc/blender
+
+%if 1 == 0
 # install blender sample.
 install -D -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/%{name}/
 install -D -m 0644 %{SOURCE3} %{buildroot}%{_docdir}/%{name}/
 install -D -m 0755 %{SOURCE4} %{buildroot}%{_bindir}/
 # Add Changes.txt
 cp -v %{SOURCE1} %{buildroot}%{_docdir}/%{name}/
+%endif
 
-%if 1 == 1
+%if 1 == 0
 # Add more icons.
 mkdir -p %{buildroot}%{_datadir}/pixmaps/
 pushd %{buildroot}%{_datadir}/pixmaps/
