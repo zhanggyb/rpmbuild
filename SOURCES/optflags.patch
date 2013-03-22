@@ -1,0 +1,15 @@
+--- build/linux.gcc.inc.orig	2013-01-28 15:21:41.000000000 +0200
++++ build/linux.gcc.inc	2013-02-17 19:53:25.181267317 +0200
+@@ -59,10 +59,10 @@
+ endif
+ 
+ ifeq ($(cfg), release)
+-        CPLUS_FLAGS = $(ITT_NOTIFY) -g -O2 -DUSE_PTHREAD
++        CPLUS_FLAGS = $(ITT_NOTIFY) -g -O2 $(OPTFLAGS) -DUSE_PTHREAD
+ endif
+ ifeq ($(cfg), debug)
+-        CPLUS_FLAGS = -DTBB_USE_DEBUG $(ITT_NOTIFY) -g -O0 -DUSE_PTHREAD
++        CPLUS_FLAGS = -DTBB_USE_DEBUG $(ITT_NOTIFY) -g -O0 $(OPTFLAGS) -DUSE_PTHREAD
+ endif
+ 
+ ifneq (00,$(lambdas)$(cpp0x))

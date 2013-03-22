@@ -26,10 +26,10 @@ Summary:        Library for Storing Voxel Data
 License:        BSD-3-Clause
 Group:          Productivity/Graphics/Other
 Url:            https://sites.google.com/site/field3d/
+
 # http://github.com/imageworks/Field3D/tarball/v1.3.2
 Source0:        %{name}-%{version}.tar.gz
-# PATCH-FIX-UPSTREAM Field3D-1.3.2-libboost.patch asterios.dramis@gmail.com -- Fix boost linking (patch taken from Fedora)
-Patch0:         Field3D-1.3.2-libboost.patch
+
 BuildRequires:  boost-devel
 BuildRequires:  cmake
 BuildRequires:  doxygen
@@ -69,7 +69,6 @@ allows the C++ objects to be written to and read from disk.
 
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
 export CFLAGS="%{optflags}"
