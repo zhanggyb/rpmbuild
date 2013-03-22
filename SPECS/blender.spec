@@ -33,18 +33,7 @@ Group:          Productivity/Graphics/3D Editors
 Url:            http://www.blender.org/
 
 Source0:        http://download.blender.org/source/%{name}-%{version}.tar.gz
-Source1:        Changes.txt
-Source2:        geeko.blend
-Source3:        geeko.README
-Source4:        blender-sample
-Source5:        blenderplayer.1
-Source6:        blender.xpm
-Source7:        x-blend.desktop
-Source8:        blender-getversion.py
-#Patch0:         blender-%{version}-fix-locale-files-path.patch
-Patch0:         blender-%{version}-fix-shared-library.patch
-Patch1:         blender-2.58-python_include.patch
-Patch2:         blender-2.64a-big-endian.patch
+
 BuildRequires:  gettext-tools
 %if 0%{?suse_version} > 1210
 BuildRequires:  libGLw-devel
@@ -153,9 +142,7 @@ This package includes API documentation and example plugin programs.
 %prep
 
 %setup -q
-%patch0 -p1
-#%patch1 -p1
-#%patch2 -p1
+#%patch0 -p1
 
 %if %DISTRIBUTABLE == 1
 rm -rf release/scripts/presets/ffmpeg
@@ -176,8 +163,9 @@ rm -rf release/scripts/presets/ffmpeg
 #rm -rf extern/verse
 
 %build
+__libsuffix=$(echo %_lib | cut -b4-)
 mkdir -p Build && pushd Build
-cmake ../ -DBUILD_SHARED_LIBS:BOOL=ON \
+cmake ../ -DBUILD_SHARED_LIBS:BOOL=OFF \
       -DWITH_FFTW3:BOOL=ON \
       -DWITH_JACK:BOOL=ON \
       -DWITH_CODEC_SNDFILE:BOOL=ON \
@@ -192,13 +180,17 @@ cmake ../ -DBUILD_SHARED_LIBS:BOOL=ON \
       -DWITH_CYCLES:BOOL=ON \
       -DWITH_OPENIMAGEIO:BOOL=ON \
       -DOPENIMAGEIO_ROOT_DIR:PATH=/usr \
+%if %wplayer == 1
+      -DWITH_PLAYER:BOOL=ON \
+%else
       -DWITH_PLAYER:BOOL=OFF \
+%endif
       -DWITH_INSTALL_PORTABLE:BOOL=OFF \
       -DWITH_MOD_OCEANSIM:BOOL=ON \
       -DWITH_LLVM:BOOL=ON \
 %if 0%{?suse_version} > 1220 || 0%{?sles_version}
       -DPYTHON_VERSION=3.3 \
-      -DPYTHON_LIBPATH=/usr/lib \
+      -DPYTHON_LIBPATH=/usr/lib"$__libsuffix" \
       -DPYTHON_LIBRARY=python3.3m \
       -DPYTHON_INCLUDE_DIRS=/usr/include/python3.3m \
 %endif
@@ -215,7 +207,7 @@ doxygen Doxyfile
 popd
 mv doc/doxygen/html doc/
 rm -rf doc/doxygen
-%endif
+%endif	# documentation
 
 %install
 export blender_version=$(grep BLENDER_VERSION source/blender/blenkernel/BKE_blender.h | tr -dc 0-9)
@@ -230,7 +222,7 @@ pushd Build
 popd
 
 # Remove folder, it's not supposed to be installed here.
-rm -rf %{buildroot}%{_datadir}/%{name}/%{_version}/datafiles/fonts
+# rm -rf %{buildroot}%{_datadir}/%{name}/%{_version}/datafiles/fonts
 
 # Factory is now of the opinion that every /usr/bin file needs a man page,
 %if %wplayer == 1
@@ -243,9 +235,9 @@ help2man \
 	-s 1 -m "User Commands" -S "Stichting Blender Foundation" -N -o blenderplayer.1 ./'blenderplayer -h ""'
 rm blenderplayer
 popd
-#cp -v %%{SOURCE5} %%{buildroot}%%{_mandir}/man1
-%endif
+%endif	# wplayer == 1
 
+%if 1 == 0
 # Fix any .py files with shebangs and wrong permissions.
 if test -z `find %{buildroot} -name *.py -perm 0644 -print0|xargs -0r grep -l '#!'`; \
 then break;
@@ -256,52 +248,20 @@ fi
 mkdir -p %{buildroot}%{_docdir}/%{name}
 cp -v    %{buildroot}%{_datadir}/doc/blender/* %{buildroot}%{_docdir}/%{name}/
 rm -rf %{buildroot}%{_datadir}/doc/blender
-
-%if 1 == 0
-# install blender sample.
-install -D -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/%{name}/
-install -D -m 0644 %{SOURCE3} %{buildroot}%{_docdir}/%{name}/
-install -D -m 0755 %{SOURCE4} %{buildroot}%{_bindir}/
-# Add Changes.txt
-cp -v %{SOURCE1} %{buildroot}%{_docdir}/%{name}/
-%endif
-
-%if 1 == 0
-# Add more icons.
-mkdir -p %{buildroot}%{_datadir}/pixmaps/
-pushd %{buildroot}%{_datadir}/pixmaps/
-ln -s ../icons/hicolor/32x32/apps/blender.png blender.png
-popd
-
-# Install s6=blender.xpm and s11=v-2.55
-install -D -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/pixmaps/
-
-ln -s ../icons/hicolor/scalable/apps/blender.svg %{buildroot}%{_datadir}/pixmaps
-%endif
-
-# Install s6=blender.xpm
-install -D -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/pixmaps/
+%endif	# 1 == 0
 
 %if 0%{?sles_version}
 %suse_update_desktop_file -i -n -G "Blender Template" x-blend
 %suse_update_desktop_file -i -n blender
 %else
 
-# Install blender template desktop file.
-desktop-file-install --dir=%{buildroot}%{_datadir}/applications %{SOURCE7}
-
 # Validate blender.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/blender.desktop
 %endif
 
-if test -z `find %{buildroot}%{_docdir}/%{name} -name *.py -perm 0755 -print0|xargs -0r grep -l '#!'`; \
-then break;
-else chmod -f 0644 `find %{buildroot}%{_docdir}/%{name} -name *.py -perm 0755 -print0|xargs -0r grep -l '#!'`; \
-fi
+#%fdupes %{buildroot}%{_datadir}/%{name}/%{rlversion}/scripts/
 
-%fdupes %{buildroot}%{_datadir}/%{name}/%{_version}/scripts/
-
-%find_lang %{name} %{?no_lang_C}
+#%find_lang %{name} %{?no_lang_C}
 
 %post
 update-desktop-database &> /dev/null || :
@@ -319,30 +279,26 @@ fi
 %posttrans
 gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
-%files lang -f %{name}.lang
+#%files lang -f %{name}.lang
 
 %files
 %defattr (-, root, root)
-%{_bindir}/*
-%{_mandir}/man1/*
-%{_datadir}/%{name}
-%{_datadir}/applications/blender.desktop
-%{_datadir}/applications/x-blend.desktop
-%{_datadir}/icons/hicolor/*/apps/blender.png
-%{_datadir}/icons/hicolor/scalable/apps/blender.svg
-%{_datadir}/pixmaps/blender.svg
-%{_datadir}/pixmaps/blender.xpm
-%{_datadir}/pixmaps/blender.png
-%if %documentation == 0
+%{_prefix}/*
+
+%if %documentation == 1
 %doc %{_docdir}/%{name}
-%else
 
 %files doc
 %defattr (-, root, root)
 %doc doc/
-%endif
+%endif	# documentation
 
 %changelog
+* Fri Mar 21 2013 zhanggyb@gmail.com
+- Simplify this spec, remove all patches and extra sources
+- Update to version 2.66a
+- add OpenImageIO, OpenColorIO support
+
 * Mon Nov  5 2012 Rene.vanPaassen@gmail.com
 - need buildroot for SLED
 - need to define PYTHON_LIBPATH etc for SLED also
