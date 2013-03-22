@@ -1,0 +1,135 @@
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/CMakeLists.txt	2013-03-22 14:27:06.000000000 +0800
+@@ -156,17 +156,26 @@
+     add_definitions ("-DOSL_NAMESPACE=${OSL_NAMESPACE}")
+ endif ()
+ 
+-# use, i.e. don't skip the full RPATH for the build tree
+-set (CMAKE_SKIP_BUILD_RPATH  FALSE)
+-# when building, don't use the install RPATH already
+-# (but later on when installing)
+-set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+-# the RPATH to be used when installing
+-set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+-# add the automatically determined parts of the RPATH
+-# which point to directories outside the build tree to the install RPATH
+-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+-
++###########################################################################
++# Fix RPATH handling
++if (CMAKE_SKIP_RPATH)
++	set (CMAKE_SKIP_RPATH FALSE)
++	unset (CMAKE_INSTALL_RPATH)
++else ()
++	# use, i.e. don't skip the full RPATH for the build tree
++	set (CMAKE_SKIP_BUILD_RPATH  FALSE)
++	# when building, don't use the install RPATH already
++	# (but later on when installing)
++	set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
++	# the RPATH to be used when installing
++	set (CMAKE_INSTALL_RPATH "${LIB_INSTALL_DIR}")
++	if (NOT IS_ABSOLUTE ${CMAKE_INSTALL_RPATH})
++		set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
++	endif ()
++	# add the automatically determined parts of the RPATH
++	# which point to directories outside the build tree to the install RPATH
++	set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
++endif ()
+ message (STATUS "CMAKE_INSTALL_RPATH = ${CMAKE_INSTALL_RPATH}")
+ 
+ 
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/doc/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/doc/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/doc/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/doc/CMakeLists.txt	2013-03-22 16:25:24.502414341 +0800
+@@ -1,11 +1,11 @@
+ set (public_docs osl-languagespec.pdf)
+ # Some day: CLA-INDIVIDUAL CLA-CORPORATE
+ 
+-install (FILES ${public_docs} DESTINATION doc COMPONENT documentation)
++install (FILES ${public_docs} DESTINATION share/doc/packages/OpenShadingLanguage COMPONENT documentation)
+ 
+ install ( FILES ${PROJECT_SOURCE_DIR}/../LICENSE
+                 ${PROJECT_SOURCE_DIR}/../INSTALL
+                 ${PROJECT_SOURCE_DIR}/../CHANGES
+                 ${PROJECT_SOURCE_DIR}/../README.md
+-          DESTINATION . )
++          DESTINATION share/doc/packages/OpenShadingLanguage )
+ 
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/liboslcomp/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/liboslcomp/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/liboslcomp/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/liboslcomp/CMakeLists.txt	2013-03-22 14:49:11.410597372 +0800
+@@ -24,11 +24,12 @@
+ LINK_ILMBASE ( oslcomp )
+ 
+ if (BUILDSTATIC)
+-    INSTALL ( TARGETS oslcomp LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
++    INSTALL ( TARGETS oslcomp LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
+ else ()
+-    INSTALL ( TARGETS oslcomp LIBRARY DESTINATION lib )
++    INSTALL ( TARGETS oslcomp LIBRARY DESTINATION lib${LIB_SUFFIX} )
+ endif ()
+ 
+ IF ( USE_BOOST_WAVE )
+     ADD_DEFINITIONS ( -DUSE_BOOST_WAVE )
+ ENDIF ()
++
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/liboslexec/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/liboslexec/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/liboslexec/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/liboslexec/CMakeLists.txt	2013-03-22 14:49:26.425669720 +0800
+@@ -127,9 +127,9 @@
+ LINK_ILMBASE ( oslexec )
+ 
+ if (BUILDSTATIC)
+-    INSTALL ( TARGETS oslexec LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
++    INSTALL ( TARGETS oslexec LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
+ else ()
+-    INSTALL ( TARGETS oslexec LIBRARY DESTINATION lib )
++    INSTALL ( TARGETS oslexec LIBRARY DESTINATION lib${LIB_SUFFIX} )
+ endif ()
+ 
+ # Unit tests
+@@ -141,3 +141,4 @@
+ link_ilmbase (accum_test)
+ add_test (unit_closure ${CMAKE_BINARY_DIR}/liboslexec/closure_test)
+ add_test (unit_accum ${CMAKE_BINARY_DIR}/liboslexec/accum_test)
++
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/liboslquery/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/liboslquery/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/liboslquery/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/liboslquery/CMakeLists.txt	2013-03-22 14:48:52.319505352 +0800
+@@ -15,7 +15,8 @@
+ LINK_ILMBASE ( oslquery )
+ 
+ if (BUILDSTATIC)
+-    INSTALL ( TARGETS oslquery LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
++    INSTALL ( TARGETS oslquery LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
+ else ()
+-    INSTALL ( TARGETS oslquery LIBRARY DESTINATION lib )
++    INSTALL ( TARGETS oslquery LIBRARY DESTINATION lib${LIB_SUFFIX} )
+ endif ()
++
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/shaders/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/shaders/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/shaders/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/shaders/CMakeLists.txt	2013-03-22 15:13:59.051765390 +0800
+@@ -42,5 +42,5 @@
+                    SOURCES ${shader_source} ${shader_headers})
+ 
+ install (FILES ${shader_headers} ${shader_source} ${shader_objs}
+-         DESTINATION shaders)
++         DESTINATION share/shaders)
+ 
+diff -uNr OpenShadingLanguage-Release-1.3.0/src/testshade/CMakeLists.txt OpenShadingLanguage-Release-1.3.0-1/src/testshade/CMakeLists.txt
+--- OpenShadingLanguage-Release-1.3.0/src/testshade/CMakeLists.txt	2013-02-15 08:52:42.000000000 +0800
++++ OpenShadingLanguage-Release-1.3.0-1/src/testshade/CMakeLists.txt	2013-03-22 14:50:09.635877917 +0800
+@@ -16,9 +16,9 @@
+ SET_TARGET_PROPERTIES (libtestshade PROPERTIES PREFIX "")
+ 
+ if (BUILDSTATIC)
+-    INSTALL ( TARGETS libtestshade LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
++    INSTALL ( TARGETS libtestshade LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
+ else ()
+-    INSTALL (TARGETS libtestshade LIBRARY DESTINATION lib )
++    INSTALL (TARGETS libtestshade LIBRARY DESTINATION lib${LIB_SUFFIX} )
+ endif ()
+ 
+ # The 'testshade_dso' executable

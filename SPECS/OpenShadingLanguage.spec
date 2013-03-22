@@ -2,8 +2,6 @@
 
 %define release_prefix 1
 
-%global cmake cmake -DCMAKE_SKIP_RPATH=OFF
-
 Name:           OpenShadingLanguage
 Version:        1.3.0
 Release:        %{?release_prefix}.1%{?dist}
@@ -15,6 +13,7 @@ URL:            http://code.google.com/p/openshadinglanguage/
 
 # source url: https://github.com/imageworks/OpenShadingLanguage/
 Source0:        OpenShadingLanguage-Release-%{version}.tar.gz
+Patch0:		OSL-%{version}-fix-cmake.patch
 
 BuildRequires:  cmake
 BuildRequires: flex
@@ -56,20 +55,28 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 %description doc
 Documentation for package %{name}.
 
+%package devel
+Summary:	Header files for %{name}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description devel
+Header files for developing on %{name}.
+
 %prep
 %setup -q -n OpenShadingLanguage-Release-%{version}
+%patch0 -p1
 
 %build
 rm -rf build/linux && mkdir -p build/linux && pushd build/linux
-
 __libsuffix=$(echo %_lib | cut -b4-)
 
 cmake	-D CMAKE_BUILD_TYPE=Release \
 	-D CMAKE_PREFIX_PATH=%{_prefix} \
 	-D CMAKE_INSTALL_PREFIX=%{_prefix} \
 	-D LLVM_STATIC:BOOL=TRUE \
+	-D CMAKE_SKIP_RPATH:BOOL=TRUE \
 	-D USE_PARTIO:BOOL=FALSE \
-	-DLIB_SUFFIX="$__libsuffix" \
+	-D LIB_SUFFIX="$__libsuffix" \
 %ifarch x86_64
 	-D USE_TBB:BOOL=TRUE \
 %else
@@ -83,14 +90,12 @@ popd
 
 %install
 pushd build/linux
-export QA_RPATHS=$[ 0x0001|0x0010 ]
 make DESTDIR=%{buildroot} install
-
-mv %_prefix/lib %_prefix/lib64	# just a workaround now
+popd
 
 %post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
 
+%postun -p /sbin/ldconfig
 
 %check
 #pushd build/linux && make test
@@ -98,24 +103,19 @@ mv %_prefix/lib %_prefix/lib64	# just a workaround now
 
 %files
 %defattr(-,root,root,-)
-%doc CHANGES INSTALL LICENSE README.md
 %_prefix/*
+%exclude %{_includedir}
+%exclude %{_datadir}/doc
 
 %files doc
-
-%files utils
-#%exclude %{_bindir}/iv
-#%{_bindir}/*
-#%exclude %{_mandir}/man1/iv.1.gz
-#%{_mandir}/man1/*.1.gz
+%{_datadir}/doc/*
 
 %files devel
-#%{_libdir}/libOpenImageIO.so
-#%{_includedir}/*
+%{_includedir}/*
 
 
 %changelog
-* Wed Mar 20 2013 Freeman Zhang <zhanggyb@gmail.com>
+* Fri Mar 22 2013 Freeman Zhang <zhanggyb@gmail.com>
 - Version 1.3.0
 - Inital Release.
 
