@@ -29,12 +29,10 @@ BuildRequires:	libwebp-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libjasper-devel
 #BuildRequires:  pugixml-devel
-%ifarch x86_64
 BuildRequires:  tbb-devel
-%endif
 BuildRequires:  hdf5-devel
-BuildRequires: opencv-devel
-BuildRequires:	Field3D-devel
+#BuildRequires: opencv-devel
+#BuildRequires:	Field3D-devel
 BuildRequires:  OpenColorIO-devel
 
 # We don't want to provide private python extension libs
@@ -109,12 +107,10 @@ cmake	-D CMAKE_BUILD_TYPE=Release \
 	-D INSTALL_DOCS:BOOL=TRUE \
 	-D USE_EXTERNAL_PUGIXML:BOOL=FALSE \
 	-D CMAKE_CXX_FLAGS="-fPIC" \
-%ifarch x86_64
 	-D USE_TBB:BOOL=TRUE \
 	-D USE_EXTERNAL_TBB=TRUE \
+%ifarch x86_64
 	-D LIB_INSTALL_DIR=%{_prefix}/lib64 \
-%else
-	-D USE_TBB:BOOL=FALSE \
 %endif
 %ifarch ppc %{power64}
 	-D NOTHREADS:BOOL=TRUE \
@@ -132,6 +128,11 @@ make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_mandir}/man1
 cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 
+# Move pdf
+mkdir -p %{buildroot}%{_datadir}/doc/packages/%{name}-doc/
+mv %{buildroot}%{_datadir}/doc/openimageio/*.pdf %{buildroot}%{_datadir}/doc/packages/%{name}-doc/
+rm -rf %{buildroot}%{_datadir}/doc/openimageio
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
@@ -145,7 +146,8 @@ cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 %{python_sitearch}/OpenImageIO.so
 
 %files doc
-%{_datadir}/doc/openimageio/*
+%doc CHANGES LICENSE
+%{_datadir}/doc
 
 %files utils
 %exclude %{_bindir}/iv
@@ -163,9 +165,10 @@ cp -a doc/*.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Wed Mar 20 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7-1.3
+* Fri Mar 22 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7-1.3
+- Use external tbb, remove opencv requirement
+- repack doc
 - Use external tbb-devel
-- Add opencv and Field3D
 
 * Tue Mar 19 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7
 - Update the 1.1.7

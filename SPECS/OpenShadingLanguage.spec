@@ -77,11 +77,7 @@ cmake	-D CMAKE_BUILD_TYPE=Release \
 	-D CMAKE_SKIP_RPATH:BOOL=TRUE \
 	-D USE_PARTIO:BOOL=FALSE \
 	-D LIB_SUFFIX="$__libsuffix" \
-%ifarch x86_64
 	-D USE_TBB:BOOL=TRUE \
-%else
-       -DUSE_TBB:BOOL=FALSE \
-%endif
        ../../src
 
 make %{?_smp_mflags}

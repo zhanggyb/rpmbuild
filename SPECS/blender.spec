@@ -266,18 +266,18 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/blender.desktop
 %post
 update-desktop-database &> /dev/null || :
 update-mime-database %{_datadir}/mime &> /dev/null || :
-touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+#touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun
-update-desktop-database &> /de%{_docdir}/%{name}-devel-%{version}v/null || :
+update-desktop-database &> /dev/null || :
 update-mime-database %{_datadir}/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-    touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+    # touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
     gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 fi
 
-%posttrans
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+#%posttrans # I don't find this keyword in RPM Guide
+#gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 #%files lang -f %{name}.lang
 
