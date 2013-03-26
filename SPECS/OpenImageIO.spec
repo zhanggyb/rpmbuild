@@ -2,37 +2,37 @@
 %define release_prefix 1
 
 Name:           OpenImageIO
-Version:        1.1.7
-Release:        %{?release_prefix}.3%{?dist}
+Version:        1.1.8
+Release:        %{?release_prefix}%{?dist}
 Summary:        Library for reading and writing images
 
 Group:          Development/Libraries
 License:        BSD
 URL:            https://sites.google.com/site/openimageio/home
 
-		# git archive Release-1.1.7 --prefix=oiio-Release-1.1.7/ -o oiio-Release-1.1.7.tar.gz
+		# git archive Release-1.1.8 --prefix=oiio-Release-1.1.8/ -o oiio-Release-1.1.8.tar.gz
 Source0:        oiio-Release-%{version}.tar.gz
 
 BuildRequires:  cmake
 BuildRequires:	txt2man
-BuildRequires:  libqt4-devel
-BuildRequires:  Mesa-libGL-devel
+BuildRequires:  qt4-devel
+BuildRequires:  mesa-libGL-devel
 BuildRequires:  boost-devel
 BuildRequires:  glew-devel
 BuildRequires:  openexr-devel
 BuildRequires:	ilmbase-devel
 BuildRequires:  python-devel
-BuildRequires:  libpng15-devel
+BuildRequires:  libpng-devel
 BuildRequires:	libtiff-devel
 BuildRequires:	openjpeg-devel
 BuildRequires:	libwebp-devel
 BuildRequires:  zlib-devel
-BuildRequires:  libjasper-devel
-#BuildRequires:  pugixml-devel
+BuildRequires:  jasper-devel
+BuildRequires:  pugixml-devel
 BuildRequires:  tbb-devel
 BuildRequires:  hdf5-devel
-#BuildRequires: opencv-devel
-#BuildRequires:	Field3D-devel
+BuildRequires: opencv-devel
+BuildRequires:	Field3D-devel
 BuildRequires:  OpenColorIO-devel
 
 # We don't want to provide private python extension libs
@@ -90,6 +90,15 @@ Development files for package %{name}
 %prep
 %setup -q -n oiio-Release-%{version}
 
+# Remove bundled pugixml
+rm -f src/include/pugixml.hpp \
+      src/include/pugiconfig.hpp \
+      src/libutil/pugixml.cpp
+
+# Remove bundled tbb
+rm -rf src/include/tbb
+
+
 echo %{_datadir}
 
 %build
@@ -105,7 +114,7 @@ cmake	-D CMAKE_BUILD_TYPE=Release \
 	-D INCLUDE_INSTALL_DIR:PATH=/usr/include/%{name} \
 	-D PYLIB_INSTALL_DIR:PATH=%{python_sitearch} \
 	-D INSTALL_DOCS:BOOL=TRUE \
-	-D USE_EXTERNAL_PUGIXML:BOOL=FALSE \
+	-D USE_EXTERNAL_PUGIXML:BOOL=TRUE \
 	-D CMAKE_CXX_FLAGS="-fPIC" \
 	-D USE_TBB:BOOL=TRUE \
 	-D USE_EXTERNAL_TBB=TRUE \
@@ -165,6 +174,11 @@ rm -rf %{buildroot}%{_datadir}/doc/openimageio
 
 
 %changelog
+* Tue Mar 26 2013 Freeman Zhang <zhanggyb@gmail.com>
+- Build for Fedora 18
+- Use external tbb, pugixml
+- Add Field3D, opencv buildrequires which are in Fedora 18 repository
+
 * Fri Mar 22 2013 Freeman Zhang <zhanggyb@gmail.com> - 1.1.7-1.3
 - Use external tbb, remove opencv requirement
 - repack doc
