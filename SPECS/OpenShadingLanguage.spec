@@ -4,7 +4,7 @@
 
 Name:           OpenShadingLanguage
 Version:        1.3.0
-Release:        %{?release_prefix}.1%{?dist}
+Release:        %{?release_prefix}%{?dist}
 Summary:        Open Shading Language (OSL) is a language for programmable shading in renderers and other applications
 
 Group:          Development/Libraries
@@ -23,6 +23,8 @@ BuildRequires:  openexr-devel
 BuildRequires: ilmbase-devel
 BuildRequires: tbb-devel
 BuildRequires: llvm-devel
+BuildRequires: llvm-static
+BuildRequires: clang
 BuildRequires:  OpenColorIO-devel
 BuildRequires: OpenImageIO-devel
 # BuildRequires: partio
@@ -111,6 +113,11 @@ popd
 
 
 %changelog
+* Tue Mar 26 2013 Freeman Zhang <zhanggyb@gmail.com>
+- Build for Fedora 18
+- re-generate the patch to use external pugixml in OpenImageIO
+- more build requirements
+
 * Fri Mar 22 2013 Freeman Zhang <zhanggyb@gmail.com>
 - Version 1.3.0
 - Inital Release.
