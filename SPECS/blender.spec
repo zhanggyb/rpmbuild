@@ -1,20 +1,6 @@
 #
 # spec file for package blender
 #
-# Copyright (c) 2012 SUSE LINUX Products GmbH, Nuernberg, Germany.
-#
-# All modifications and additions to the file contributed by third parties
-# remain the property of their copyright owners, unless otherwise agreed
-# upon. The license for this file, and modifications and additions to the
-# file, is the same license as for the pristine package itself (unless the
-# license for the pristine package is not an Open Source License, in which
-# case the license is the MIT License). An "Open Source License" is a
-# license that conforms to the Open Source Definition (Version 1.9)
-# published by the Open Source Initiative.
-
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
-#
-
 
 %define collada 1
 %define wplayer 1
@@ -34,40 +20,35 @@ Url:            http://www.blender.org/
 
 Source0:        http://download.blender.org/source/%{name}-%{version}.tar.gz
 
-BuildRequires:  gettext-tools
-%if 0%{?suse_version} > 1210
-BuildRequires:  libGLw-devel
-%else
-BuildRequires:  MesaGLw-devel
-%endif
-BuildRequires:  libexpat-devel
-BuildRequires:  pkg-config
+BuildRequires:  gettext
+BuildRequires:  mesa-libGLw-devel
+BuildRequires:  mesa-libGLU-devel
+BuildRequires:  expat-devel
+BuildRequires:  pkgconfig
 BuildRequires:  python3-devel
-BuildRequires:  update-desktop-files
-BuildRequires:  xorg-x11
 %if %documentation == 1
 Recommends:     blender-doc
+BuildRequires:  doxygen
+BuildRequires:  epydoc
+BuildRequires:  graphviz
 %endif
-# libquicktime-devel
+BuildRequires:	libquicktime-devel
 BuildRequires:  OpenEXR-devel
 BuildRequires:  SDL-devel
 BuildRequires:  boost-devel
 BuildRequires:  cmake
 BuildRequires:  desktop-file-utils
-BuildRequires:  doxygen
-BuildRequires:  epydoc
-BuildRequires:  fdupes
-BuildRequires:  fftw3-devel
+# BuildRequires:  fdupes
+BuildRequires:  fftw-devel
 BuildRequires:  gcc-c++
 BuildRequires:  glew-devel
-BuildRequires:  graphviz
 BuildRequires:  help2man
 BuildRequires:  hicolor-icon-theme
 BuildRequires:  jack-audio-connection-kit-devel
 #BuildRequires:  libao-devel
 BuildRequires:  libdrm-devel
-BuildRequires:  libjpeg8-devel
-BuildRequires:  liblcms-devel
+BuildRequires:  openjpeg-devel
+BuildRequires:  lcms-devel
 BuildRequires:  libpng-devel
 BuildRequires:  libsamplerate-devel
 BuildRequires:  libsndfile-devel
@@ -77,30 +58,31 @@ BuildRequires:  libvorbis-devel
 BuildRequires:  lzo-devel
 BuildRequires:  openal-soft-devel
 BuildRequires:  openssl-devel
-BuildRequires:  openssl-devel
 BuildRequires:  pcre-devel
-BuildRequires:  perl-Text-Iconv
+#BuildRequires:  perl-Text-Iconv
 #BuildRequires:  ruby
 #BuildRequires:  ruby-devel
 BuildRequires:  shared-mime-info
-BuildRequires:  xorg-x11-devel
+BuildRequires:  libX11-devel
 BuildRequires:  xz
 BuildRequires:  xz-devel
 BuildRequires:  yasm
 BuildRequires:  yasm-devel
-BuildRequires:  pkgconfig(glu)
-BuildRequires:  pkgconfig(libxml-2.0)
+#BuildRequires:  pkgconfig(glu)
+#BuildRequires:  pkgconfig(libxml-2.0)
+BuildRequires:  libxml2-devel
 %if 0%{?collada} == 1
 BuildRequires:  openCOLLADA-devel
 %endif
-BuildRequires:  graphviz
-BuildRequires:  liblcms-devel
 BuildRequires: OpenColorIO-devel
 BuildRequires: OpenImageIO-devel
 BuildRequires: llvm-devel
-BuildRequires: libffmpeg-devel
+BuildRequires: ffmpeg-devel
+BuildRequires: python3-devel
+BuildRequires: python3-numpy
 # See bnc#713346
-Requires:       python3-xml
+#Requires:       python3-devel
+
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -294,6 +276,9 @@ fi
 %endif	# documentation
 
 %changelog
+* Wed Mar 27 2013 Freeman Zhang <zhanggyb@gmail.com>
+- reconfigure for Fedora 18
+
 * Fri Mar 21 2013 zhanggyb@gmail.com
 - Simplify this spec, remove all patches and extra sources
 - Update to version 2.66a
