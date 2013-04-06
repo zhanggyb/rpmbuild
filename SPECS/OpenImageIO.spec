@@ -2,7 +2,7 @@
 %define release_prefix 1
 
 Name:           OpenImageIO
-Version:        1.1.8
+Version:        1.1.9
 Release:        %{?release_prefix}%{?dist}
 Summary:        Library for reading and writing images
 
@@ -10,7 +10,7 @@ Group:          Development/Libraries
 License:        BSD
 URL:            https://sites.google.com/site/openimageio/home
 
-		# git archive Release-1.1.8 --prefix=oiio-Release-1.1.8/ -o oiio-Release-1.1.8.tar.gz
+		# git archive Release-1.1.9 --prefix=oiio-Release-1.1.9/ -o oiio-Release-1.1.9.tar.gz
 Source0:        oiio-Release-%{version}.tar.gz
 
 BuildRequires:  cmake
@@ -174,6 +174,9 @@ rm -rf %{buildroot}%{_datadir}/doc/openimageio
 
 
 %changelog
+* Sat Apr 6 2013 Freeman Zhang <zhanggyb@gmail.com>
+- Upgrade to 1.1.9
+
 * Tue Mar 26 2013 Freeman Zhang <zhanggyb@gmail.com>
 - Build for Fedora 18
 - Use external tbb, pugixml
