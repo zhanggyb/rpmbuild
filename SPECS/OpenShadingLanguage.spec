@@ -1,6 +1,6 @@
 # OpenShadingLanguage rpmbuild spec
 
-%define release_prefix 1
+%define release_prefix 2
 
 Name:           OpenShadingLanguage
 Version:        1.3.0
@@ -100,10 +100,9 @@ popd
 
 
 %files
-%defattr(-,root,root,-)
-%_prefix/*
-%exclude %{_includedir}
-%exclude %{_datadir}/doc
+%{_bindir}/*
+%{_libdir}/*
+%{_datadir}/shaders/*
 
 %files doc
 %{_datadir}/doc/*
@@ -113,6 +112,11 @@ popd
 
 
 %changelog
+
+* Sun Apr 7 2013 Freeman Zhang <zhanggyb@gmail.com>
+- Upgrade release version to 2
+- Fix file conflicts with filesystem-3.x
+
 * Tue Mar 26 2013 Freeman Zhang <zhanggyb@gmail.com>
 - Build for Fedora 18
 - re-generate the patch to use external pugixml in OpenImageIO
